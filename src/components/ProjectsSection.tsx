@@ -71,11 +71,16 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: n
         transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
         transformStyle: 'preserve-3d',
       }}
-      className="glass rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 h-full animate-pulse-border"
+      className="relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-primary/30 h-full group animated-border-glow"
     >
-      <div className={`h-2 bg-gradient-to-r ${project.gradient}`} />
+      {/* Animated moving border */}
+      <div className="absolute inset-0 rounded-2xl overflow-hidden">
+        <div className="absolute inset-[-2px] bg-gradient-conic from-primary via-accent via-purple-500 via-pink-500 to-primary animate-border-spin opacity-70 group-hover:opacity-100 transition-opacity" />
+      </div>
+      <div className="absolute inset-[2px] rounded-2xl bg-card z-10" />
+      <div className={`h-2 bg-gradient-to-r ${project.gradient} relative z-20`} />
       
-      <div className="p-6 md:p-8">
+      <div className="p-6 md:p-8 relative z-20">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="text-xl font-bold mb-2">{project.title}</h3>

@@ -272,6 +272,51 @@
   }
 }
 
+@keyframes border-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.bg-gradient-conic {
+  background: conic-gradient(
+    from 0deg,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(280 80% 60%),
+    hsl(320 80% 55%),
+    hsl(var(--primary))
+  );
+}
+
+.animate-border-spin {
+  animation: border-spin 4s linear infinite;
+}
+
+.animated-border-glow {
+  @apply relative;
+}
+
+.animated-border-glow::before {
+  content: '';
+  @apply absolute -inset-[1px] rounded-2xl opacity-0 transition-opacity duration-500 -z-10;
+  background: conic-gradient(
+    from 0deg,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(280 80% 60%),
+    hsl(var(--primary))
+  );
+  filter: blur(8px);
+}
+
+.animated-border-glow:hover::before {
+  @apply opacity-70;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
