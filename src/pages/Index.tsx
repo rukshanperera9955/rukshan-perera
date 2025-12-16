@@ -44,15 +44,10 @@ const LoadingScreen = () => (
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDark(savedTheme === 'dark');
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    }
+    // Force dark mode
+    document.documentElement.classList.add('dark');
 
     // Simulate loading
     const timer = setTimeout(() => {
@@ -62,13 +57,6 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = !isDark;
-    setIsDark(newTheme);
-    document.documentElement.classList.toggle('dark', newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-  };
-
   return (
     <>
       <AnimatePresence>
@@ -77,7 +65,7 @@ const Index = () => {
 
       <div className="relative min-h-screen overflow-x-hidden">
         <ParticleBackground />
-        <Navigation isDark={isDark} toggleTheme={toggleTheme} />
+        <Navigation />
         
         <main>
           <HeroSection />
