@@ -42,9 +42,10 @@ const socialLinks = [
 const ContactSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +62,7 @@ const ContactSection = () => {
       if (error) throw error;
       
       toast.success('Message sent successfully! I\'ll get back to you soon.');
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message. Please try again or email me directly.');
@@ -210,6 +211,21 @@ const ContactSection = () => {
                       placeholder="john@example.com"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl bg-secondary/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="+1 234 567 8900"
+                  />
                 </div>
 
                 <div>

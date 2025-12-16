@@ -1,6 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { MapPin, Briefcase, GraduationCap, Calendar } from 'lucide-react';
+import rukshanImage from '@/assets/rukshan-perera.png';
 
 const ProfileSection = () => {
   const ref = useRef(null);
@@ -47,8 +48,12 @@ const ProfileSection = () => {
                 className="relative"
               >
                 <div className="w-40 h-40 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1 shine-effect">
-                  <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-                    <span className="text-5xl md:text-6xl font-bold gradient-text">RP</span>
+                  <div className="w-full h-full rounded-full bg-card overflow-hidden">
+                    <img 
+                      src={rukshanImage} 
+                      alt="Rukshan Perera" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
                 {/* Glow ring */}
