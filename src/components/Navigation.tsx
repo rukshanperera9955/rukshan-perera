@@ -4,6 +4,7 @@ import { Menu, X, Moon, Sun } from 'lucide-react';
 import { Button } from './ui/button';
 
 const navItems = [
+  { name: 'Profile', href: '#profile' },
   { name: 'About', href: '#about' },
   { name: 'Skills', href: '#skills' },
   { name: 'Experience', href: '#experience' },

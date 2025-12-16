@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import ParticleBackground from '@/components/ParticleBackground';
 import HeroSection from '@/components/HeroSection';
+import ProfileSection from '@/components/ProfileSection';
 import AboutSection from '@/components/AboutSection';
 import SkillsSection from '@/components/SkillsSection';
 import ExperienceSection from '@/components/ExperienceSection';
@@ -80,6 +81,7 @@ const Index = () => {
         
         <main>
           <HeroSection />
+          <ProfileSection />
           <AboutSection />
           <SkillsSection />
           <ExperienceSection />

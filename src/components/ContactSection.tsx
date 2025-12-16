@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { Mail, Phone, MapPin, Send, Linkedin, Github } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const contactInfo = [
   {
@@ -52,12 +53,21 @@ const ContactSection = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success('Message sent successfully! I\'ll get back to you soon.');
-    setFormData({ name: '', email: '', message: '' });
-    setIsSubmitting(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData,
+      });
+
+      if (error) throw error;
+      
+      toast.success('Message sent successfully! I\'ll get back to you soon.');
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message. Please try again or email me directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
