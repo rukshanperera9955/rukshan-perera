@@ -10,7 +10,6 @@ const navItems = [
   { name: 'Experience', href: '#experience' },
   { name: 'Projects', href: '#projects' },
   { name: 'Education', href: '#education' },
-  { name: 'Contact', href: '#contact' },
 ];
 
 const Navigation = () => {
@@ -53,6 +52,15 @@ const Navigation = () => {
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
               </motion.a>
             ))}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navItems.length * 0.1 }}
+            >
+              <Button variant="glow" size="sm" asChild className="ml-2">
+                <a href="#contact">Contact</a>
+              </Button>
+            </motion.div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -90,6 +98,15 @@ const Navigation = () => {
                   {item.name}
                 </motion.a>
               ))}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: navItems.length * 0.1 }}
+              >
+                <Button variant="glow" size="default" asChild>
+                  <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</a>
+                </Button>
+              </motion.div>
             </div>
           </motion.div>
         )}
