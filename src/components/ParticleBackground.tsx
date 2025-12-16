@@ -8,9 +8,9 @@ const ParticleBackground = () => {
     <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden">
       {/* Gradient orbs */}
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl"
+        className="absolute w-[600px] h-[600px] rounded-full opacity-25 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, hsl(190 95% 50%) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, hsl(270 90% 65%) 0%, transparent 70%)',
           top: '10%',
           left: '10%',
         }}
@@ -26,9 +26,9 @@ const ParticleBackground = () => {
         }}
       />
       <motion.div
-        className="absolute w-[500px] h-[500px] rounded-full opacity-15 blur-3xl"
+        className="absolute w-[500px] h-[500px] rounded-full opacity-20 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, hsl(260 80% 65%) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, hsl(290 85% 60%) 0%, transparent 70%)',
           bottom: '20%',
           right: '10%',
         }}
@@ -39,6 +39,24 @@ const ParticleBackground = () => {
         }}
         transition={{
           duration: 25,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+      <motion.div
+        className="absolute w-[400px] h-[400px] rounded-full opacity-15 blur-3xl"
+        style={{
+          background: 'radial-gradient(circle, hsl(250 90% 70%) 0%, transparent 70%)',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        }}
+        animate={{
+          scale: [1, 1.4, 1],
+          opacity: [0.15, 0.25, 0.15],
+        }}
+        transition={{
+          duration: 15,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
