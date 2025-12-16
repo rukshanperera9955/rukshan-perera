@@ -3,27 +3,160 @@ import { Github, Linkedin, ArrowDown, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import TypewriterText from './TypewriterText';
 
+const FloatingShape = ({ 
+  className, 
+  delay = 0, 
+  duration = 20,
+  children 
+}: { 
+  className: string; 
+  delay?: number; 
+  duration?: number;
+  children?: React.ReactNode;
+}) => (
+  <motion.div
+    className={className}
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{ 
+      opacity: 1, 
+      scale: 1,
+      y: [0, -30, 0],
+      rotate: [0, 360]
+    }}
+    transition={{ 
+      opacity: { delay, duration: 0.5 },
+      scale: { delay, duration: 0.5 },
+      y: { delay, duration: duration * 0.5, repeat: Infinity, ease: 'easeInOut' },
+      rotate: { delay, duration, repeat: Infinity, ease: 'linear' }
+    }}
+  >
+    {children}
+  </motion.div>
+);
+
 const HeroSection = () => {
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden section-padding">
-      {/* 3D Geometric shapes */}
+      {/* Enhanced 3D Geometric shapes */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-32 h-32 border border-primary/20 rounded-lg"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-          style={{ transformStyle: 'preserve-3d' }}
+        {/* Large rotating square */}
+        <FloatingShape 
+          className="absolute top-1/4 left-[15%] w-32 h-32 border-2 border-primary/30 rounded-lg animate-pulse-border"
+          delay={0}
+          duration={30}
         />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-24 h-24 border border-accent/20 rounded-full"
-          animate={{ rotate: -360, scale: [1, 1.2, 1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        
+        {/* Rotating circle */}
+        <FloatingShape 
+          className="absolute bottom-1/4 right-[15%] w-24 h-24 border-2 border-accent/30 rounded-full"
+          delay={0.5}
+          duration={25}
         />
+        
+        {/* Diamond shape */}
         <motion.div
-          className="absolute top-1/3 right-1/3 w-16 h-16 border border-primary/30"
-          animate={{ rotate: 180, y: [0, -20, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/3 right-1/4 w-16 h-16 border-2 border-primary/40"
           style={{ transform: 'rotate(45deg)' }}
+          animate={{ 
+            y: [0, -25, 0],
+            scale: [1, 1.1, 1],
+            rotate: [45, 225, 45]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        
+        {/* Small floating dots */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-primary/40"
+            style={{
+              top: `${20 + Math.random() * 60}%`,
+              left: `${10 + Math.random() * 80}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 0.8, 0.3],
+              scale: [1, 1.5, 1]
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              delay: i * 0.3,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            }}
+          />
+        ))}
+        
+        {/* Hexagon */}
+        <motion.div
+          className="absolute bottom-1/3 left-1/4 w-20 h-20"
+          animate={{ 
+            rotate: [0, -360],
+            y: [0, 20, 0]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        >
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <polygon
+              points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              opacity="0.3"
+            />
+          </svg>
+        </motion.div>
+        
+        {/* Triangle */}
+        <motion.div
+          className="absolute top-[60%] right-[10%] w-16 h-16"
+          animate={{ 
+            rotate: [0, 360],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+        >
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <polygon
+              points="50,10 90,90 10,90"
+              fill="none"
+              stroke="hsl(var(--accent))"
+              strokeWidth="2"
+              opacity="0.35"
+            />
+          </svg>
+        </motion.div>
+        
+        {/* Cross shape */}
+        <motion.div
+          className="absolute top-[20%] right-[30%] w-12 h-12"
+          animate={{ 
+            rotate: [0, 180, 0],
+            opacity: [0.2, 0.5, 0.2]
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-primary/40 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-0 h-full w-0.5 bg-primary/40 -translate-x-1/2" />
+        </motion.div>
+        
+        {/* Concentric circles */}
+        <motion.div
+          className="absolute bottom-[20%] left-[10%]"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <div className="w-24 h-24 rounded-full border border-primary/20" />
+          <div className="absolute top-2 left-2 w-20 h-20 rounded-full border border-accent/20" />
+          <div className="absolute top-4 left-4 w-16 h-16 rounded-full border border-primary/30" />
+        </motion.div>
+        
+        {/* Animated ring */}
+        <motion.div
+          className="absolute top-[40%] left-[5%] w-14 h-14 rounded-full border-2 border-dashed border-primary/30"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
         />
       </div>
 
@@ -40,7 +173,7 @@ const HeroSection = () => {
             transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
             className="inline-block mb-6"
           >
-            <span className="px-4 py-2 text-sm font-medium glass rounded-full text-primary border border-primary/30">
+            <span className="px-4 py-2 text-sm font-medium glass rounded-full text-primary border border-primary/30 animate-pulse-border">
               Full Stack Developer
             </span>
           </motion.div>
