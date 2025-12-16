@@ -1,7 +1,9 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
-import { ExternalLink, Github, Calendar } from 'lucide-react';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 const projects = [
   {
@@ -34,7 +36,7 @@ const projects = [
   },
 ];
 
-const ProjectCard = ({ project, index, isInView }: { project: typeof projects[0]; index: number; isInView: boolean }) => {
+const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
@@ -47,8 +49,8 @@ const ProjectCard = ({ project, index, isInView }: { project: typeof projects[0]
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    setRotateX((y - centerY) / 10);
-    setRotateY((centerX - x) / 10);
+    setRotateX((y - centerY) / 15);
+    setRotateY((centerX - x) / 15);
   };
 
   const handleMouseLeave = () => {
@@ -59,8 +61,8 @@ const ProjectCard = ({ project, index, isInView }: { project: typeof projects[0]
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseMove={handleMouseMove}
@@ -69,7 +71,7 @@ const ProjectCard = ({ project, index, isInView }: { project: typeof projects[0]
         transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
         transformStyle: 'preserve-3d',
       }}
-      className="glass rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-2xl hover:shadow-primary/10"
+      className="glass rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 h-full animate-pulse-border"
     >
       <div className={`h-2 bg-gradient-to-r ${project.gradient}`} />
       
@@ -92,7 +94,7 @@ const ProjectCard = ({ project, index, isInView }: { project: typeof projects[0]
           {project.technologies.map((tech) => (
             <span
               key={tech}
-              className="px-3 py-1 text-xs font-mono bg-secondary/50 text-foreground rounded-md border border-border"
+              className="px-3 py-1 text-xs font-mono bg-secondary/50 text-foreground rounded-md border border-border hover:border-primary/50 transition-colors"
             >
               {tech}
             </span>
@@ -106,6 +108,29 @@ const ProjectCard = ({ project, index, isInView }: { project: typeof projects[0]
 const ProjectsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'start' },
+    [Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })]
+  );
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   return (
     <section id="projects" className="section-padding bg-card/30" ref={ref}>
@@ -114,17 +139,68 @@ const ProjectsSection = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
           <span className="text-primary font-mono text-sm mb-4 block">04. PORTFOLIO</span>
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Featured Projects</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {projects.map((project, index) => (
-            <ProjectCard key={project.title} project={project} index={index} isInView={isInView} />
-          ))}
+        <div className="relative">
+          {/* Navigation Buttons */}
+          <Button
+            variant="glass"
+            size="icon"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 rounded-full hidden md:flex hover:scale-110 transition-transform"
+            onClick={scrollPrev}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          
+          <Button
+            variant="glass"
+            size="icon"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 rounded-full hidden md:flex hover:scale-110 transition-transform"
+            onClick={scrollNext}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+
+          {/* Carousel */}
+          <div className="overflow-hidden mx-auto md:mx-8" ref={emblaRef}>
+            <div className="flex gap-6">
+              {projects.map((project, index) => (
+                <div key={project.title} className="flex-[0_0_100%] md:flex-[0_0_50%] min-w-0 pl-0 first:pl-0">
+                  <ProjectCard project={project} index={index} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-8">
+            {projects.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === selectedIndex 
+                    ? 'w-8 bg-primary' 
+                    : 'bg-primary/30 hover:bg-primary/50'
+                }`}
+                onClick={() => emblaApi?.scrollTo(index)}
+              />
+            ))}
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="flex justify-center gap-4 mt-6 md:hidden">
+            <Button variant="glass" size="icon" onClick={scrollPrev}>
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <Button variant="glass" size="icon" onClick={scrollNext}>
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </section>
