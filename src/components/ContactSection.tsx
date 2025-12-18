@@ -42,16 +42,52 @@ const socialLinks = [
 const ContactSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     message: '',
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    if (formData.phone && !/^[\d\s\-+()]{7,20}$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -63,6 +99,7 @@ const [formData, setFormData] = useState({
       
       toast.success('Message sent successfully! I\'ll get back to you soon.');
       setFormData({ name: '', email: '', phone: '', message: '' });
+      setErrors({});
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message. Please try again or email me directly.');
@@ -182,7 +219,7 @@ const [formData, setFormData] = useState({
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium mb-2">
-                      Your Name
+                      Your Name <span className="text-destructive">*</span>
                     </label>
                     <input
                       type="text"
@@ -190,15 +227,15 @@ const [formData, setFormData] = useState({
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 rounded-xl bg-secondary/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className={`w-full px-4 py-3 rounded-xl bg-secondary/30 border ${errors.name ? 'border-destructive' : 'border-border'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all`}
                       placeholder="John Doe"
                     />
+                    {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
                   </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium mb-2">
-                      Your Email
+                      Your Email <span className="text-destructive">*</span>
                     </label>
                     <input
                       type="email"
@@ -206,10 +243,10 @@ const [formData, setFormData] = useState({
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 rounded-xl bg-secondary/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className={`w-full px-4 py-3 rounded-xl bg-secondary/30 border ${errors.email ? 'border-destructive' : 'border-border'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all`}
                       placeholder="john@example.com"
                     />
+                    {errors.email && <p className="text-destructive text-xs mt-1">{errors.email}</p>}
                   </div>
                 </div>
 
@@ -223,25 +260,26 @@ const [formData, setFormData] = useState({
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl bg-secondary/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    className={`w-full px-4 py-3 rounded-xl bg-secondary/30 border ${errors.phone ? 'border-destructive' : 'border-border'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all`}
                     placeholder="+1 234 567 8900"
                   />
+                  {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium mb-2">
-                    Your Message
+                    Your Message <span className="text-destructive">*</span>
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    required
                     rows={5}
-                    className="w-full px-4 py-3 rounded-xl bg-secondary/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                    className={`w-full px-4 py-3 rounded-xl bg-secondary/30 border ${errors.message ? 'border-destructive' : 'border-border'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none`}
                     placeholder="Tell me about your project..."
                   />
+                  {errors.message && <p className="text-destructive text-xs mt-1">{errors.message}</p>}
                 </div>
 
                 <Button
