@@ -1,6 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { MapPin, Briefcase, GraduationCap, Calendar } from 'lucide-react';
+import { MapPin, Briefcase, GraduationCap, Calendar, Download } from 'lucide-react';
+import { Button } from './ui/button';
 import rukshanImage from '@/assets/rukshan-perera.png';
 
 const ProfileSection = () => {
@@ -41,13 +42,8 @@ const ProfileSection = () => {
 
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
               {/* Profile Avatar */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.5, delay: 0.3, type: 'spring' }}
-                className="relative"
-              >
-                <div className="w-40 h-40 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1 shine-effect">
+              <div className="relative">
+                <div className="w-40 h-40 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1">
                   <div className="w-full h-full rounded-full bg-card overflow-hidden">
                     <img 
                       src={rukshanImage} 
@@ -56,9 +52,7 @@ const ProfileSection = () => {
                     />
                   </div>
                 </div>
-                {/* Glow ring */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-accent opacity-30 blur-xl animate-pulse-glow" />
-              </motion.div>
+              </div>
 
               {/* Profile Info */}
               <div className="flex-1 text-center md:text-left">
@@ -84,11 +78,24 @@ const ProfileSection = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.4, delay: 0.6 }}
-                  className="text-muted-foreground leading-relaxed"
+                  className="text-muted-foreground leading-relaxed mb-4"
                 >
                   Passionate about building high-performance web applications and real-time systems. 
                   Specializing in React, Next.js, Node.js, and Rust for scalable solutions.
                 </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.7 }}
+                >
+                  <Button variant="glow" asChild>
+                    <a href="/RukshanPerera.pdf" download className="inline-flex items-center gap-2">
+                      <Download className="w-4 h-4" />
+                      Download Resume
+                    </a>
+                  </Button>
+                </motion.div>
               </div>
             </div>
 

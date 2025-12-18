@@ -183,17 +183,26 @@ const ProjectsSection = () => {
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center gap-3 mt-8">
             {projects.map((_, index) => (
               <button
                 key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`relative transition-all duration-300 ${
                   index === selectedIndex 
-                    ? 'w-8 bg-primary' 
-                    : 'bg-primary/30 hover:bg-primary/50'
+                    ? 'w-10 h-3' 
+                    : 'w-3 h-3 hover:scale-125'
                 }`}
                 onClick={() => emblaApi?.scrollTo(index)}
-              />
+              >
+                <span className={`absolute inset-0 rounded-full transition-all duration-300 ${
+                  index === selectedIndex 
+                    ? 'bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/40' 
+                    : 'bg-muted-foreground/30 hover:bg-primary/50'
+                }`} />
+                {index === selectedIndex && (
+                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse opacity-50" />
+                )}
+              </button>
             ))}
           </div>
 
