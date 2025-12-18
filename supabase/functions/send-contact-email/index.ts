@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +8,7 @@ const corsHeaders = {
 interface ContactFormData {
   name: string;
   email: string;
+  phone: string;
   message: string;
 }
 
@@ -18,12 +19,12 @@ serve(async (req) => {
   }
 
   try {
-    const apiKey = Deno.env.get('CONTACT_FORM_API_KEY');
+    const apiKey = Deno.env.get('RESEND_API_KEY');
     
     if (!apiKey) {
-      console.error('CONTACT_FORM_API_KEY not configured');
+      console.error('RESEND_API_KEY not configured');
       return new Response(
-        JSON.stringify({ error: 'Contact form not configured' }),
+        JSON.stringify({ error: 'Email service not configured' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -31,7 +32,7 @@ serve(async (req) => {
       );
     }
 
-    const { name, email, message }: ContactFormData = await req.json();
+    const { name, email, phone, message }: ContactFormData = await req.json();
 
     // Validate input
     if (!name || !email || !message) {
@@ -44,37 +45,37 @@ serve(async (req) => {
       );
     }
 
-    // Here you would integrate with your email service using the API key
-    // For example: SendGrid, Mailgun, Resend, etc.
-    // This is a placeholder that logs the submission
-    console.log('Contact form submission:', { name, email, message });
+    console.log('Contact form submission received:', { name, email, phone });
 
-    // Example integration with Resend (uncomment and modify as needed):
-    /*
-    const response = await fetch('https://api.resend.com/emails', {
+    const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Contact Form <noreply@yourdomain.com>',
+        from: 'Contact Form <onboarding@resend.dev>',
         to: ['rukshanperera9955@gmail.com'],
         subject: `New Contact from ${name}`,
         html: `
           <h2>New Contact Form Submission</h2>
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
           <p><strong>Message:</strong></p>
           <p>${message}</p>
         `,
       }),
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to send email');
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.json();
+      console.error('Resend API error:', errorData);
+      throw new Error(errorData.message || 'Failed to send email');
     }
-    */
+
+    const result = await emailResponse.json();
+    console.log('Email sent successfully:', result);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Message sent successfully' }),
@@ -83,10 +84,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing contact form:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to process message' }),
+      JSON.stringify({ error: error.message || 'Failed to process message' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
