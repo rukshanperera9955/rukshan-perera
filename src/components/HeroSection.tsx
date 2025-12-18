@@ -249,7 +249,7 @@ const HeroSection = () => {
               </a>
             </Button>
             <Button variant="glass" size="icon" className="rounded-full" asChild>
-              <a href="#" aria-label="Download Resume">
+              <a href="/RukshanPerera.pdf" download aria-label="Download Resume">
                 <Download className="w-5 h-5" />
               </a>
             </Button>
