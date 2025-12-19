@@ -21,27 +21,30 @@ const HighlightCard = memo(({
   index: number; 
   isInView: boolean;
   shouldReduceMotion: boolean;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 15 }}
-    animate={isInView ? { opacity: 1, y: 0 } : {}}
-    transition={{ 
-      duration: shouldReduceMotion ? 0.2 : 0.3, 
-      delay: shouldReduceMotion ? 0 : 0.3 + index * 0.08 
-    }}
-    className="glass-hover rounded-xl p-6 text-center"
-  >
-    <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary/10 flex items-center justify-center">
-      <item.icon className="w-7 h-7 text-primary" />
-    </div>
-    <h3 className="font-semibold mb-1">{item.label}</h3>
-    <p className="text-sm text-muted-foreground">{item.description}</p>
-  </motion.div>
-));
+}) => {
+  const Icon = item.icon;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ 
+        duration: shouldReduceMotion ? 0.2 : 0.3, 
+        delay: shouldReduceMotion ? 0 : 0.3 + index * 0.08 
+      }}
+      className="glass-hover rounded-xl p-6 text-center"
+    >
+      <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary/10 flex items-center justify-center">
+        <Icon className="w-7 h-7 text-primary" />
+      </div>
+      <h3 className="font-semibold mb-1">{item.label}</h3>
+      <p className="text-sm text-muted-foreground">{item.description}</p>
+    </motion.div>
+  );
+});
 
 HighlightCard.displayName = 'HighlightCard';
 
-const AboutSection = memo(() => {
+const AboutSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { shouldReduceMotion } = useMobileDetect();
@@ -104,8 +107,6 @@ const AboutSection = memo(() => {
       </div>
     </section>
   );
-});
-
-AboutSection.displayName = 'AboutSection';
+};
 
 export default AboutSection;

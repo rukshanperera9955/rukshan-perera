@@ -1,9 +1,18 @@
 import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { GraduationCap, Award, BookOpen } from 'lucide-react';
+import { GraduationCap, Award, BookOpen, LucideIcon } from 'lucide-react';
 import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
-const educationData = [
+interface EducationItem {
+  icon: LucideIcon;
+  title: string;
+  subtitle: string;
+  institution: string;
+  period: string;
+  color: string;
+}
+
+const educationData: EducationItem[] = [
   {
     icon: GraduationCap,
     title: 'Bachelor of Engineering (BEng)',
@@ -37,7 +46,7 @@ const EducationCard = memo(({
   isInView, 
   shouldReduceMotion 
 }: { 
-  item: typeof educationData[0]; 
+  item: EducationItem; 
   index: number; 
   isInView: boolean;
   shouldReduceMotion: boolean;
@@ -85,7 +94,7 @@ const EducationCard = memo(({
 
 EducationCard.displayName = 'EducationCard';
 
-const EducationSection = memo(() => {
+const EducationSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { shouldReduceMotion } = useMobileDetect();
@@ -125,8 +134,6 @@ const EducationSection = memo(() => {
       </div>
     </section>
   );
-});
-
-EducationSection.displayName = 'EducationSection';
+};
 
 export default EducationSection;

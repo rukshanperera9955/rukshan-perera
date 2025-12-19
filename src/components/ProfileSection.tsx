@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef } from 'react';
+import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { MapPin, Briefcase, GraduationCap, Calendar, Download } from 'lucide-react';
 import { Button } from './ui/button';
@@ -23,25 +23,28 @@ const ProfileDetailCard = memo(({
   index: number; 
   isInView: boolean;
   shouldReduceMotion: boolean;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 15 }}
-    animate={isInView ? { opacity: 1, y: 0 } : {}}
-    transition={{ 
-      duration: shouldReduceMotion ? 0.2 : 0.3, 
-      delay: shouldReduceMotion ? 0 : 0.4 + index * 0.08 
-    }}
-    className="bg-secondary/30 rounded-xl p-4 text-center border border-border/50 hover:border-primary/30 transition-colors"
-  >
-    <detail.icon className="w-6 h-6 text-primary mx-auto mb-2" />
-    <p className="text-xs text-muted-foreground mb-1">{detail.label}</p>
-    <p className="text-sm font-medium">{detail.value}</p>
-  </motion.div>
-));
+}) => {
+  const Icon = detail.icon;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ 
+        duration: shouldReduceMotion ? 0.2 : 0.3, 
+        delay: shouldReduceMotion ? 0 : 0.4 + index * 0.08 
+      }}
+      className="bg-secondary/30 rounded-xl p-4 text-center border border-border/50 hover:border-primary/30 transition-colors"
+    >
+      <Icon className="w-6 h-6 text-primary mx-auto mb-2" />
+      <p className="text-xs text-muted-foreground mb-1">{detail.label}</p>
+      <p className="text-sm font-medium">{detail.value}</p>
+    </motion.div>
+  );
+});
 
 ProfileDetailCard.displayName = 'ProfileDetailCard';
 
-const ProfileSection = memo(() => {
+const ProfileSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { shouldReduceMotion } = useMobileDetect();
@@ -149,8 +152,6 @@ const ProfileSection = memo(() => {
       </div>
     </section>
   );
-});
-
-ProfileSection.displayName = 'ProfileSection';
+};
 
 export default ProfileSection;
