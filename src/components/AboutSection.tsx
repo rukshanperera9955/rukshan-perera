@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Code2, Server, Smartphone, Zap } from 'lucide-react';
+import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 const highlights = [
   { icon: Code2, label: 'Frontend Expert', description: 'React, Next.js, TypeScript' },
@@ -10,17 +10,49 @@ const highlights = [
   { icon: Zap, label: 'Performance', description: 'Optimization & Scaling' },
 ];
 
-const AboutSection = () => {
+// Memoized highlight card
+const HighlightCard = memo(({ 
+  item, 
+  index, 
+  isInView, 
+  shouldReduceMotion 
+}: { 
+  item: typeof highlights[0]; 
+  index: number; 
+  isInView: boolean;
+  shouldReduceMotion: boolean;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 15 }}
+    animate={isInView ? { opacity: 1, y: 0 } : {}}
+    transition={{ 
+      duration: shouldReduceMotion ? 0.2 : 0.3, 
+      delay: shouldReduceMotion ? 0 : 0.3 + index * 0.08 
+    }}
+    className="glass-hover rounded-xl p-6 text-center"
+  >
+    <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary/10 flex items-center justify-center">
+      <item.icon className="w-7 h-7 text-primary" />
+    </div>
+    <h3 className="font-semibold mb-1">{item.label}</h3>
+    <p className="text-sm text-muted-foreground">{item.description}</p>
+  </motion.div>
+));
+
+HighlightCard.displayName = 'HighlightCard';
+
+const AboutSection = memo(() => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const { shouldReduceMotion } = useMobileDetect();
 
   return (
     <section id="about" className="section-padding" ref={ref}>
       <div className="container-custom">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0.2 : 0.5 }}
           className="text-center mb-16"
         >
           <span className="text-primary font-mono text-sm mb-4 block">01. ABOUT ME</span>
@@ -30,9 +62,9 @@ const AboutSection = () => {
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0.2 : 0.5, delay: 0.1 }}
           >
             <div className="glass rounded-2xl p-8 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-2xl" />
@@ -57,35 +89,23 @@ const AboutSection = () => {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-2 gap-4"
-          >
+          <div className="grid grid-cols-2 gap-4">
             {highlights.map((item, index) => (
-              <motion.div
+              <HighlightCard 
                 key={item.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="glass-hover rounded-xl p-6 text-center card-3d"
-              >
-                <div className="card-3d-inner">
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <item.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-1">{item.label}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </div>
-              </motion.div>
+                item={item}
+                index={index}
+                isInView={isInView}
+                shouldReduceMotion={shouldReduceMotion}
+              />
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
   );
-};
+});
+
+AboutSection.displayName = 'AboutSection';
 
 export default AboutSection;

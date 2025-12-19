@@ -1,6 +1,7 @@
+import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import { Building2, Calendar, CheckCircle2 } from 'lucide-react';
+import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 const achievements = [
   'Designed and implemented scalable RESTful APIs using Node.js and Express.js, improving system performance through Redis caching integration',
@@ -10,17 +11,48 @@ const achievements = [
   'Created comprehensive technical documentation and developer guides for complex systems',
 ];
 
-const ExperienceSection = () => {
+// Memoized achievement item
+const AchievementItem = memo(({ 
+  achievement, 
+  index, 
+  isInView, 
+  shouldReduceMotion 
+}: { 
+  achievement: string; 
+  index: number; 
+  isInView: boolean;
+  shouldReduceMotion: boolean;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, x: -15 }}
+    animate={isInView ? { opacity: 1, x: 0 } : {}}
+    transition={{ 
+      duration: shouldReduceMotion ? 0.2 : 0.3, 
+      delay: shouldReduceMotion ? 0 : 0.2 + index * 0.08 
+    }}
+    className="flex gap-3 group"
+  >
+    <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+    <p className="text-muted-foreground group-hover:text-foreground transition-colors">
+      {achievement}
+    </p>
+  </motion.div>
+));
+
+AchievementItem.displayName = 'AchievementItem';
+
+const ExperienceSection = memo(() => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const { shouldReduceMotion } = useMobileDetect();
 
   return (
     <section id="experience" className="section-padding" ref={ref}>
       <div className="container-custom">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0.2 : 0.5 }}
           className="text-center mb-16"
         >
           <span className="text-primary font-mono text-sm mb-4 block">03. CAREER</span>
@@ -29,9 +61,9 @@ const ExperienceSection = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: shouldReduceMotion ? 0.2 : 0.5, delay: 0.1 }}
           className="max-w-4xl mx-auto"
         >
           <div className="glass rounded-2xl p-8 md:p-10 relative overflow-hidden">
@@ -40,12 +72,9 @@ const ExperienceSection = () => {
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
 
             <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"
-              >
+              <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <Building2 className="w-8 h-8 text-primary" />
-              </motion.div>
+              </div>
 
               <div className="flex-1">
                 <h3 className="text-2xl font-bold mb-1">Full Stack Software Engineer</h3>
@@ -60,18 +89,13 @@ const ExperienceSection = () => {
             <div className="space-y-4">
               <h4 className="font-semibold text-lg mb-4">Key Achievements</h4>
               {achievements.map((achievement, index) => (
-                <motion.div
+                <AchievementItem 
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                  className="flex gap-3 group"
-                >
-                  <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
-                  <p className="text-muted-foreground group-hover:text-foreground transition-colors">
-                    {achievement}
-                  </p>
-                </motion.div>
+                  achievement={achievement}
+                  index={index}
+                  isInView={isInView}
+                  shouldReduceMotion={shouldReduceMotion}
+                />
               ))}
             </div>
           </div>
@@ -79,6 +103,8 @@ const ExperienceSection = () => {
       </div>
     </section>
   );
-};
+});
+
+ExperienceSection.displayName = 'ExperienceSection';
 
 export default ExperienceSection;

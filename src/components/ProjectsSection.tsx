@@ -1,9 +1,10 @@
+import { memo, useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect, useCallback } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 const projects = [
   {
@@ -36,51 +37,30 @@ const projects = [
   },
 ];
 
-const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: number }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    setRotateX((y - centerY) / 15);
-    setRotateY((centerX - x) / 15);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setRotateX(0);
-    setRotateY(0);
-  };
+// Memoized project card with simplified 3D effect for mobile
+const ProjectCard = memo(({ 
+  project, 
+  index,
+  shouldReduceMotion 
+}: { 
+  project: typeof projects[0]; 
+  index: number;
+  shouldReduceMotion: boolean;
+}) => {
+  const cardRef = useRef<HTMLDivElement>(null);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-        transformStyle: 'preserve-3d',
-      }}
-      className="relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-primary/30 h-full group animated-border-glow"
+      transition={{ duration: shouldReduceMotion ? 0.2 : 0.4, delay: index * 0.05 }}
+      className="relative rounded-2xl overflow-hidden h-full group border border-border/50 hover:border-primary/30 transition-colors duration-300 bg-card"
+      style={{ willChange: 'transform' }}
     >
-      {/* Animated moving border */}
-      <div className="absolute inset-0 rounded-2xl overflow-hidden">
-        <div className="absolute inset-[-2px] bg-gradient-conic from-primary via-accent via-purple-500 via-pink-500 to-primary animate-border-spin opacity-70 group-hover:opacity-100 transition-opacity" />
-      </div>
-      <div className="absolute inset-[2px] rounded-2xl bg-card z-10" />
-      <div className={`h-2 bg-gradient-to-r ${project.gradient} relative z-20`} />
+      <div className={`h-2 bg-gradient-to-r ${project.gradient}`} />
       
-      <div className="p-6 md:p-8 relative z-20">
+      <div className="p-6 md:p-8">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="text-xl font-bold mb-2">{project.title}</h3>
@@ -108,20 +88,30 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: n
       </div>
     </motion.div>
   );
-};
+});
 
-const ProjectsSection = () => {
+ProjectCard.displayName = 'ProjectCard';
+
+const ProjectsSection = memo(() => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const { shouldReduceMotion, isMobile } = useMobileDetect();
   
+  // Create autoplay plugin with useMemo to prevent recreation
+  const autoplayPlugin = useMemo(() => 
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }),
+    []
+  );
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'start' },
-    [Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })]
+    [autoplayPlugin]
   );
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -141,9 +131,9 @@ const ProjectsSection = () => {
     <section id="projects" className="section-padding bg-card/30" ref={ref}>
       <div className="container-custom">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0.3 : 0.5 }}
           className="text-center mb-12"
         >
           <span className="text-primary font-mono text-sm mb-4 block">04. PORTFOLIO</span>
@@ -152,57 +142,57 @@ const ProjectsSection = () => {
         </motion.div>
 
         <div className="relative">
-          {/* Navigation Buttons */}
-          <Button
-            variant="glass"
-            size="icon"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 rounded-full hidden md:flex hover:scale-110 transition-transform"
-            onClick={scrollPrev}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          
-          <Button
-            variant="glass"
-            size="icon"
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 rounded-full hidden md:flex hover:scale-110 transition-transform"
-            onClick={scrollNext}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
+          {/* Navigation Buttons - Desktop only */}
+          {!isMobile && (
+            <>
+              <Button
+                variant="glass"
+                size="icon"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 rounded-full hidden md:flex"
+                onClick={scrollPrev}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              
+              <Button
+                variant="glass"
+                size="icon"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 rounded-full hidden md:flex"
+                onClick={scrollNext}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </>
+          )}
 
           {/* Carousel */}
           <div className="overflow-hidden mx-auto md:mx-8" ref={emblaRef}>
             <div className="flex gap-6">
               {projects.map((project, index) => (
-                <div key={project.title} className="flex-[0_0_100%] md:flex-[0_0_50%] min-w-0 pl-0 first:pl-0">
-                  <ProjectCard project={project} index={index} />
+                <div key={project.title} className="flex-[0_0_100%] md:flex-[0_0_50%] min-w-0">
+                  <ProjectCard 
+                    project={project} 
+                    index={index} 
+                    shouldReduceMotion={shouldReduceMotion}
+                  />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-3 mt-8">
+          {/* Simplified Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-8">
             {projects.map((_, index) => (
               <button
                 key={index}
-                className={`relative transition-all duration-300 ${
+                className={`rounded-full transition-all duration-200 ${
                   index === selectedIndex 
-                    ? 'w-10 h-3' 
-                    : 'w-3 h-3 hover:scale-125'
+                    ? 'w-8 h-2 bg-primary' 
+                    : 'w-2 h-2 bg-muted-foreground/30 hover:bg-primary/50'
                 }`}
-                onClick={() => emblaApi?.scrollTo(index)}
-              >
-                <span className={`absolute inset-0 rounded-full transition-all duration-300 ${
-                  index === selectedIndex 
-                    ? 'bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/40' 
-                    : 'bg-muted-foreground/30 hover:bg-primary/50'
-                }`} />
-                {index === selectedIndex && (
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse opacity-50" />
-                )}
-              </button>
+                onClick={() => scrollTo(index)}
+                aria-label={`Go to project ${index + 1}`}
+              />
             ))}
           </div>
 
@@ -219,6 +209,8 @@ const ProjectsSection = () => {
       </div>
     </section>
   );
-};
+});
+
+ProjectsSection.displayName = 'ProjectsSection';
 
 export default ProjectsSection;
