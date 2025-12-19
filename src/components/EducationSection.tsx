@@ -1,6 +1,7 @@
 import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { GraduationCap, Award, BookOpen, LucideIcon } from 'lucide-react';
+import { GraduationCap, Award, BookOpen } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 interface EducationItem {

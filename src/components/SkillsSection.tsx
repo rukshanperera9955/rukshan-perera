@@ -1,6 +1,7 @@
 import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Code2, Server, Database, Smartphone, Cloud, Layers, LucideIcon } from 'lucide-react';
+import { Code2, Server, Database, Smartphone, Cloud, Layers } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 interface SkillCategory {
