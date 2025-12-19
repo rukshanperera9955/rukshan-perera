@@ -1,198 +1,170 @@
+import { memo, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Github, Linkedin, ArrowDown, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import TypewriterText from './TypewriterText';
+import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
-const FloatingShape = ({ 
+// Memoized floating shape with GPU-accelerated animations
+const FloatingShape = memo(({ 
   className, 
   delay = 0, 
   duration = 20,
-  children 
+  children,
+  shouldReduceMotion 
 }: { 
   className: string; 
   delay?: number; 
   duration?: number;
   children?: React.ReactNode;
+  shouldReduceMotion: boolean;
 }) => (
   <motion.div
     className={className}
-    initial={{ opacity: 0, scale: 0 }}
-    animate={{ 
-      opacity: 1, 
-      scale: 1,
-      y: [0, -30, 0],
-      rotate: [0, 360]
-    }}
-    transition={{ 
-      opacity: { delay, duration: 0.5 },
-      scale: { delay, duration: 0.5 },
-      y: { delay, duration: duration * 0.5, repeat: Infinity, ease: 'easeInOut' },
-      rotate: { delay, duration, repeat: Infinity, ease: 'linear' }
-    }}
+    style={{ willChange: shouldReduceMotion ? 'auto' : 'transform, opacity' }}
+    initial={{ opacity: 0 }}
+    animate={shouldReduceMotion 
+      ? { opacity: 0.3 }
+      : { 
+          opacity: 0.4, 
+          y: [0, -20, 0],
+          rotate: [0, 180]
+        }
+    }
+    transition={shouldReduceMotion 
+      ? { duration: 0.5 }
+      : { 
+          opacity: { delay, duration: 0.5 },
+          y: { delay, duration: duration * 0.5, repeat: Infinity, ease: 'linear' },
+          rotate: { delay, duration, repeat: Infinity, ease: 'linear' }
+        }
+    }
   >
     {children}
   </motion.div>
-);
+));
 
-const HeroSection = () => {
+FloatingShape.displayName = 'FloatingShape';
+
+// Memoized floating dot for performance
+const FloatingDot = memo(({ 
+  index, 
+  shouldReduceMotion 
+}: { 
+  index: number; 
+  shouldReduceMotion: boolean 
+}) => {
+  const style = useMemo(() => ({
+    top: `${25 + (index * 8)}%`,
+    left: `${15 + (index * 10)}%`,
+    willChange: shouldReduceMotion ? 'auto' : 'transform, opacity',
+  }), [index, shouldReduceMotion]);
+
+  return (
+    <motion.div
+      className="absolute w-2 h-2 rounded-full bg-primary/30"
+      style={style}
+      animate={shouldReduceMotion 
+        ? { opacity: 0.3 }
+        : {
+            y: [0, -15, 0],
+            opacity: [0.2, 0.5, 0.2],
+          }
+      }
+      transition={shouldReduceMotion 
+        ? { duration: 0 }
+        : {
+            duration: 4 + index * 0.5,
+            delay: index * 0.4,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }
+      }
+    />
+  );
+});
+
+FloatingDot.displayName = 'FloatingDot';
+
+const HeroSection = memo(() => {
+  const { shouldReduceMotion, isMobile } = useMobileDetect();
+  
+  // Memoize animation variants
+  const containerAnimation = useMemo(() => ({
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: shouldReduceMotion ? 0.3 : 0.6 }
+  }), [shouldReduceMotion]);
+
+  // Memoized dots count - reduce for mobile
+  const dotsCount = isMobile ? 4 : 6;
+  const dots = useMemo(() => Array.from({ length: dotsCount }, (_, i) => i), [dotsCount]);
+
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden section-padding">
-      {/* Enhanced 3D Geometric shapes */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Large rotating square */}
-        <FloatingShape 
-          className="absolute top-1/4 left-[15%] w-32 h-32 border-2 border-primary/30 rounded-lg animate-pulse-border"
-          delay={0}
-          duration={30}
-        />
-        
-        {/* Rotating circle */}
-        <FloatingShape 
-          className="absolute bottom-1/4 right-[15%] w-24 h-24 border-2 border-accent/30 rounded-full"
-          delay={0.5}
-          duration={25}
-        />
-        
-        {/* Diamond shape */}
-        <motion.div
-          className="absolute top-1/3 right-1/4 w-16 h-16 border-2 border-primary/40"
-          style={{ transform: 'rotate(45deg)' }}
-          animate={{ 
-            y: [0, -25, 0],
-            scale: [1, 1.1, 1],
-            rotate: [45, 225, 45]
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        
-        {/* Small floating dots */}
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 rounded-full bg-primary/40"
-            style={{
-              top: `${20 + Math.random() * 60}%`,
-              left: `${10 + Math.random() * 80}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.3, 0.8, 0.3],
-              scale: [1, 1.5, 1]
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              delay: i * 0.3,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
+      {/* Simplified geometric shapes for better performance */}
+      {!shouldReduceMotion && (
+        <div className="absolute inset-0 pointer-events-none">
+          <FloatingShape 
+            className="absolute top-1/4 left-[15%] w-24 h-24 border-2 border-primary/20 rounded-lg"
+            delay={0}
+            duration={25}
+            shouldReduceMotion={shouldReduceMotion}
           />
-        ))}
-        
-        {/* Hexagon */}
-        <motion.div
-          className="absolute bottom-1/3 left-1/4 w-20 h-20"
-          animate={{ 
-            rotate: [0, -360],
-            y: [0, 20, 0]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        >
-          <svg viewBox="0 0 100 100" className="w-full h-full">
-            <polygon
-              points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5"
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="2"
-              opacity="0.3"
+          
+          {!isMobile && (
+            <FloatingShape 
+              className="absolute bottom-1/4 right-[15%] w-20 h-20 border-2 border-accent/20 rounded-full"
+              delay={0.3}
+              duration={20}
+              shouldReduceMotion={shouldReduceMotion}
             />
-          </svg>
-        </motion.div>
-        
-        {/* Triangle */}
-        <motion.div
-          className="absolute top-[60%] right-[10%] w-16 h-16"
-          animate={{ 
-            rotate: [0, 360],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-        >
-          <svg viewBox="0 0 100 100" className="w-full h-full">
-            <polygon
-              points="50,10 90,90 10,90"
-              fill="none"
-              stroke="hsl(var(--accent))"
-              strokeWidth="2"
-              opacity="0.35"
+          )}
+          
+          {/* Simplified floating dots - reduced count on mobile */}
+          {dots.map((i) => (
+            <FloatingDot 
+              key={i} 
+              index={i} 
+              shouldReduceMotion={shouldReduceMotion} 
             />
-          </svg>
-        </motion.div>
-        
-        {/* Cross shape */}
-        <motion.div
-          className="absolute top-[20%] right-[30%] w-12 h-12"
-          animate={{ 
-            rotate: [0, 180, 0],
-            opacity: [0.2, 0.5, 0.2]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-primary/40 -translate-y-1/2" />
-          <div className="absolute left-1/2 top-0 h-full w-0.5 bg-primary/40 -translate-x-1/2" />
-        </motion.div>
-        
-        {/* Concentric circles */}
-        <motion.div
-          className="absolute bottom-[20%] left-[10%]"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <div className="w-24 h-24 rounded-full border border-primary/20" />
-          <div className="absolute top-2 left-2 w-20 h-20 rounded-full border border-accent/20" />
-          <div className="absolute top-4 left-4 w-16 h-16 rounded-full border border-primary/30" />
-        </motion.div>
-        
-        {/* Animated ring */}
-        <motion.div
-          className="absolute top-[40%] left-[5%] w-14 h-14 rounded-full border-2 border-dashed border-primary/30"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="container-custom relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial={containerAnimation.initial}
+          animate={containerAnimation.animate}
+          transition={containerAnimation.transition}
           className="text-center max-w-4xl mx-auto"
         >
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: shouldReduceMotion ? 0.2 : 0.4 }}
             className="inline-block mb-6"
           >
-            <span className="px-4 py-2 text-sm font-medium glass rounded-full text-primary border border-primary/30 animate-pulse-border">
+            <span className="px-4 py-2 text-sm font-medium glass rounded-full text-primary border border-primary/30">
               Full Stack Developer
             </span>
           </motion.div>
 
           <motion.h1
             className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
+            transition={{ delay: 0.2, duration: shouldReduceMotion ? 0.2 : 0.5 }}
           >
             Hi, I'm{' '}
-            <span className="gradient-text text-glow-strong shine-effect">Rukshan Perera</span>
+            <span className="gradient-text text-glow-strong">Rukshan Perera</span>
           </motion.h1>
 
           <motion.div
             className="text-lg md:text-xl text-muted-foreground mb-8 h-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.3 }}
           >
             <TypewriterText
               texts={[
@@ -206,9 +178,9 @@ const HeroSection = () => {
 
           <motion.div
             className="flex flex-wrap items-center justify-center gap-4 mb-12"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.4 }}
           >
             <Button variant="glow" size="xl" asChild>
               <a href="#projects">
@@ -226,7 +198,7 @@ const HeroSection = () => {
             className="flex items-center justify-center gap-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 0.5 }}
           >
             <Button variant="glass" size="icon" className="rounded-full" asChild>
               <a 
@@ -258,7 +230,7 @@ const HeroSection = () => {
 
         <motion.div
           className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
+          animate={shouldReduceMotion ? {} : { y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
           <a href="#about" className="text-muted-foreground hover:text-primary transition-colors">
@@ -268,6 +240,8 @@ const HeroSection = () => {
       </div>
     </section>
   );
-};
+});
+
+HeroSection.displayName = 'HeroSection';
 
 export default HeroSection;

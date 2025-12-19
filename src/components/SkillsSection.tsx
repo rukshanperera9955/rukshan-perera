@@ -1,6 +1,7 @@
+import { memo, useRef, useState, useCallback } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
 import { Code2, Server, Database, Smartphone, Cloud, Layers } from 'lucide-react';
+import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 const skillCategories = [
   {
@@ -41,23 +42,85 @@ const skillCategories = [
   },
 ];
 
-const SkillsSection = () => {
+// Memoized skill badge
+const SkillBadge = memo(({ skill }: { skill: string }) => (
+  <span className="px-3 py-1.5 text-sm bg-secondary/50 text-foreground rounded-lg border border-border hover:border-primary/50 transition-colors">
+    {skill}
+  </span>
+));
+
+SkillBadge.displayName = 'SkillBadge';
+
+// Memoized skill category card
+const SkillCategoryCard = memo(({ 
+  category, 
+  index, 
+  isInView, 
+  shouldReduceMotion 
+}: { 
+  category: typeof skillCategories[0]; 
+  index: number; 
+  isInView: boolean;
+  shouldReduceMotion: boolean;
+}) => {
+  const Icon = category.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ 
+        duration: shouldReduceMotion ? 0.2 : 0.4, 
+        delay: shouldReduceMotion ? 0 : index * 0.08 
+      }}
+      className="relative group"
+    >
+      <div className="glass-hover rounded-2xl p-6 h-full relative overflow-hidden transition-colors duration-300">
+        {/* Static gradient background */}
+        <div 
+          className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+        />
+        
+        {/* Icon */}
+        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} p-0.5 mb-4`}>
+          <div className="w-full h-full bg-background rounded-[10px] flex items-center justify-center">
+            <Icon className="w-5 h-5 text-foreground" />
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className="font-semibold text-lg mb-4">{category.title}</h3>
+
+        {/* Skills */}
+        <div className="flex flex-wrap gap-2">
+          {category.skills.map((skill) => (
+            <SkillBadge key={skill} skill={skill} />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+SkillCategoryCard.displayName = 'SkillCategoryCard';
+
+const SkillsSection = memo(() => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
+  const { shouldReduceMotion } = useMobileDetect();
 
   return (
     <section id="skills" className="section-padding relative overflow-hidden" ref={ref}>
-      {/* Background elements */}
+      {/* Static background element */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container-custom relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0.2 : 0.5 }}
           className="text-center mb-16"
         >
           <span className="text-primary font-mono text-sm mb-4 block">02. EXPERTISE</span>
@@ -67,81 +130,21 @@ const SkillsSection = () => {
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {skillCategories.map((category, categoryIndex) => {
-            const Icon = category.icon;
-            const isLarge = categoryIndex === 0 || categoryIndex === 2;
-            
-            return (
-              <motion.div
-                key={category.title}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-                transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-                onMouseEnter={() => setHoveredCategory(categoryIndex)}
-                onMouseLeave={() => setHoveredCategory(null)}
-                className={`relative group ${isLarge ? 'md:row-span-1' : ''}`}
-              >
-                <div className="glass-hover rounded-2xl p-6 h-full relative overflow-hidden animate-pulse-border transition-all duration-500">
-                  {/* Gradient background on hover */}
-                  <div 
-                    className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
-                  />
-                  
-                  {/* Floating orb */}
-                  <motion.div
-                    className={`absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br ${category.color} rounded-full opacity-10 blur-2xl`}
-                    animate={{
-                      scale: hoveredCategory === categoryIndex ? 1.3 : 1,
-                      opacity: hoveredCategory === categoryIndex ? 0.2 : 0.1,
-                    }}
-                    transition={{ duration: 0.4 }}
-                  />
-
-                  {/* Icon */}
-                  <motion.div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} p-0.5 mb-4`}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
-                  >
-                    <div className="w-full h-full bg-background rounded-[10px] flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-foreground" />
-                    </div>
-                  </motion.div>
-
-                  {/* Title */}
-                  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                    {category.title}
-                  </h3>
-
-                  {/* Skills */}
-                  <div className="flex flex-wrap gap-2">
-                    {category.skills.map((skill, skillIndex) => (
-                      <motion.span
-                        key={skill}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                        transition={{ 
-                          duration: 0.3, 
-                          delay: categoryIndex * 0.1 + skillIndex * 0.05 
-                        }}
-                        whileHover={{ 
-                          scale: 1.08,
-                          backgroundColor: 'hsl(var(--primary) / 0.15)'
-                        }}
-                        className="px-3 py-1.5 text-sm bg-secondary/50 text-foreground rounded-lg border border-border hover:border-primary/50 transition-all cursor-default"
-                      >
-                        {skill}
-                      </motion.span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+          {skillCategories.map((category, index) => (
+            <SkillCategoryCard 
+              key={category.title}
+              category={category}
+              index={index}
+              isInView={isInView}
+              shouldReduceMotion={shouldReduceMotion}
+            />
+          ))}
         </div>
       </div>
     </section>
   );
-};
+});
+
+SkillsSection.displayName = 'SkillsSection';
 
 export default SkillsSection;

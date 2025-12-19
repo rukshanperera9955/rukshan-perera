@@ -1,6 +1,7 @@
+import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import { GraduationCap, Award, BookOpen } from 'lucide-react';
+import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
 const educationData = [
   {
@@ -29,17 +30,73 @@ const educationData = [
   },
 ];
 
-const EducationSection = () => {
+// Memoized education card
+const EducationCard = memo(({ 
+  item, 
+  index, 
+  isInView, 
+  shouldReduceMotion 
+}: { 
+  item: typeof educationData[0]; 
+  index: number; 
+  isInView: boolean;
+  shouldReduceMotion: boolean;
+}) => {
+  const Icon = item.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={isInView ? { opacity: 1, x: 0 } : {}}
+      transition={{ 
+        duration: shouldReduceMotion ? 0.2 : 0.4, 
+        delay: shouldReduceMotion ? 0 : index * 0.1 
+      }}
+      className="relative md:pl-20"
+    >
+      {/* Timeline dot - Desktop */}
+      <div
+        className={`hidden md:flex absolute left-0 w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center shadow-lg`}
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
+      >
+        <Icon className="w-7 h-7 text-white" />
+      </div>
+
+      <div className="glass-hover rounded-2xl p-6 md:p-8">
+        <div className="flex items-start gap-4">
+          {/* Mobile icon */}
+          <div className={`md:hidden w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+          
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+              <h3 className="text-xl font-bold">{item.title}</h3>
+              <span className="text-sm text-primary font-medium">{item.period}</span>
+            </div>
+            <p className="text-lg text-foreground/90 mb-1">{item.subtitle}</p>
+            <p className="text-muted-foreground">{item.institution}</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+EducationCard.displayName = 'EducationCard';
+
+const EducationSection = memo(() => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const { shouldReduceMotion } = useMobileDetect();
 
   return (
     <section id="education" className="section-padding" ref={ref}>
       <div className="container-custom">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0.2 : 0.5 }}
           className="text-center mb-16"
         >
           <span className="text-primary font-mono text-sm mb-4 block">05. EDUCATION</span>
@@ -54,42 +111,13 @@ const EducationSection = () => {
 
             <div className="space-y-8">
               {educationData.map((item, index) => (
-                <motion.div
+                <EducationCard 
                   key={item.title}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.15 }}
-                  className="relative md:pl-20"
-                >
-                  {/* Timeline dot */}
-                  <motion.div
-                    whileHover={{ scale: 1.2 }}
-                    className={`hidden md:flex absolute left-0 w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center shadow-lg`}
-                    style={{ top: '50%', transform: 'translateY(-50%)' }}
-                  >
-                    <item.icon className="w-7 h-7 text-white" />
-                  </motion.div>
-
-                  <motion.div
-                    whileHover={{ y: -5 }}
-                    className="glass-hover rounded-2xl p-6 md:p-8"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`md:hidden w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
-                        <item.icon className="w-6 h-6 text-white" />
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                          <h3 className="text-xl font-bold">{item.title}</h3>
-                          <span className="text-sm text-primary font-medium">{item.period}</span>
-                        </div>
-                        <p className="text-lg text-foreground/90 mb-1">{item.subtitle}</p>
-                        <p className="text-muted-foreground">{item.institution}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
+                  item={item}
+                  index={index}
+                  isInView={isInView}
+                  shouldReduceMotion={shouldReduceMotion}
+                />
               ))}
             </div>
           </div>
@@ -97,6 +125,8 @@ const EducationSection = () => {
       </div>
     </section>
   );
-};
+});
+
+EducationSection.displayName = 'EducationSection';
 
 export default EducationSection;
