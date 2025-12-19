@@ -46,53 +46,47 @@ const ProjectCard = memo(({
   project: typeof projects[0]; 
   index: number;
   shouldReduceMotion: boolean;
-}) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  return (
-    <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: shouldReduceMotion ? 0.2 : 0.4, delay: index * 0.05 }}
-      className="relative rounded-2xl overflow-hidden h-full group border border-border/50 hover:border-primary/30 transition-colors duration-300 bg-card"
-      style={{ willChange: 'transform' }}
-    >
-      <div className={`h-2 bg-gradient-to-r ${project.gradient}`} />
-      
-      <div className="p-6 md:p-8">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Calendar className="w-4 h-4" />
-              {project.period}
-            </div>
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: shouldReduceMotion ? 0.2 : 0.4, delay: index * 0.05 }}
+    className="relative rounded-2xl overflow-hidden h-full group border border-border/50 hover:border-primary/30 transition-colors duration-300 bg-card"
+  >
+    <div className={`h-2 bg-gradient-to-r ${project.gradient}`} />
+    
+    <div className="p-6 md:p-8">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <Calendar className="w-4 h-4" />
+            {project.period}
           </div>
         </div>
-
-        <p className="text-muted-foreground mb-6 leading-relaxed">
-          {project.description}
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-          {project.technologies.map((tech) => (
-            <span
-              key={tech}
-              className="px-3 py-1 text-xs font-mono bg-secondary/50 text-foreground rounded-md border border-border hover:border-primary/50 transition-colors"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
       </div>
-    </motion.div>
-  );
-});
+
+      <p className="text-muted-foreground mb-6 leading-relaxed">
+        {project.description}
+      </p>
+
+      <div className="flex flex-wrap gap-2">
+        {project.technologies.map((tech) => (
+          <span
+            key={tech}
+            className="px-3 py-1 text-xs font-mono bg-secondary/50 text-foreground rounded-md border border-border hover:border-primary/50 transition-colors"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+    </div>
+  </motion.div>
+));
 
 ProjectCard.displayName = 'ProjectCard';
 
-const ProjectsSection = memo(() => {
+const ProjectsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -209,8 +203,6 @@ const ProjectsSection = memo(() => {
       </div>
     </section>
   );
-});
-
-ProjectsSection.displayName = 'ProjectsSection';
+};
 
 export default ProjectsSection;

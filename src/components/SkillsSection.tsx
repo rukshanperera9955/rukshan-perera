@@ -1,9 +1,16 @@
-import { memo, useRef, useState, useCallback } from 'react';
+import { memo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Code2, Server, Database, Smartphone, Cloud, Layers } from 'lucide-react';
+import { Code2, Server, Database, Smartphone, Cloud, Layers, LucideIcon } from 'lucide-react';
 import { useMobileDetect } from '@/hooks/use-mobile-detect';
 
-const skillCategories = [
+interface SkillCategory {
+  title: string;
+  icon: LucideIcon;
+  skills: string[];
+  color: string;
+}
+
+const skillCategories: SkillCategory[] = [
   {
     title: 'Programming Languages',
     icon: Code2,
@@ -58,7 +65,7 @@ const SkillCategoryCard = memo(({
   isInView, 
   shouldReduceMotion 
 }: { 
-  category: typeof skillCategories[0]; 
+  category: SkillCategory; 
   index: number; 
   isInView: boolean;
   shouldReduceMotion: boolean;
@@ -104,7 +111,7 @@ const SkillCategoryCard = memo(({
 
 SkillCategoryCard.displayName = 'SkillCategoryCard';
 
-const SkillsSection = memo(() => {
+const SkillsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { shouldReduceMotion } = useMobileDetect();
@@ -143,8 +150,6 @@ const SkillsSection = memo(() => {
       </div>
     </section>
   );
-});
-
-SkillsSection.displayName = 'SkillsSection';
+};
 
 export default SkillsSection;

@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, memo } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import ParticleBackground from '@/components/ParticleBackground';
@@ -16,15 +16,13 @@ const EducationSection = lazy(() => import('@/components/EducationSection'));
 const ContactSection = lazy(() => import('@/components/ContactSection'));
 
 // Simple loading fallback
-const SectionLoader = memo(() => (
+const SectionLoader = () => (
   <div className="min-h-[200px] flex items-center justify-center">
     <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
   </div>
-));
+);
 
-SectionLoader.displayName = 'SectionLoader';
-
-const LoadingScreen = memo(() => (
+const LoadingScreen = () => (
   <motion.div
     initial={{ opacity: 1 }}
     exit={{ opacity: 0 }}
@@ -36,11 +34,9 @@ const LoadingScreen = memo(() => (
       <p className="text-lg font-medium gradient-text">Loading...</p>
     </div>
   </motion.div>
-));
+);
 
-LoadingScreen.displayName = 'LoadingScreen';
-
-const Index = memo(() => {
+const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -77,8 +73,6 @@ const Index = memo(() => {
       </div>
     </>
   );
-});
-
-Index.displayName = 'Index';
+};
 
 export default Index;

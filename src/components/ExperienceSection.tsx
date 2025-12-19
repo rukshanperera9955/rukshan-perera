@@ -41,7 +41,7 @@ const AchievementItem = memo(({
 
 AchievementItem.displayName = 'AchievementItem';
 
-const ExperienceSection = memo(() => {
+const ExperienceSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { shouldReduceMotion } = useMobileDetect();
@@ -103,8 +103,6 @@ const ExperienceSection = memo(() => {
       </div>
     </section>
   );
-});
-
-ExperienceSection.displayName = 'ExperienceSection';
+};
 
 export default ExperienceSection;
